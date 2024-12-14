@@ -55,7 +55,7 @@ def run_traceroute(target, progressive, output_file):
         print(f"An error occurred: {e}")
 
 def main():
-    # Set up argparse for command-line interface
+    # Set up de argparse pour l'interface en ligne de commande 
     parser = argparse.ArgumentParser(description="Python Traceroute Script")
     parser.add_argument("target", type=str, help="Target URL or IP address for the traceroute.")
     parser.add_argument(
