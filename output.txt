@@ -1,0 +1,15 @@
+
+D‚termination de l'itin‚raire vers youtube.com [2a00:1450:400e:811::200e]
+avec un maximum de 30 sautsÿ:
+
+1    <1 ms    <1 ms    <1 ms  2a02:a03f:c9c7:1800:46d4:54ff:fef6:b1e3
+2     *        *        *     D‚lai d'attente de la demande d‚pass‚.
+3     *        *        *     D‚lai d'attente de la demande d‚pass‚.
+4    10 ms    11 ms    11 ms  ae-74-106.ibrstr6.isp.proximus.be [2a02:a000:1:fff3::1]
+5    11 ms    11 ms    11 ms  ae-1-1000.ibrstr5.isp.proximus.be [2a02:a000:1:fff1::]
+6    14 ms    15 ms    14 ms  2a02:a000:1:fffb::2
+7    20 ms    19 ms    19 ms  2001:4860:0:1::61cb
+8    19 ms    19 ms    19 ms  2001:4860:0:1::611d
+9    19 ms    19 ms    19 ms  ams15s48-in-x0e.1e100.net [2a00:1450:400e:811::200e]
+
+Itin‚raire d‚termin‚.
