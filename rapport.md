@@ -1,3 +1,7 @@
+# Probleme survenu
+le code ne prenait pas en compte les addresse IPv6
+
+
 # Rapport : Projet Traceroute
 
 ## **1. Contexte et Objectif**
