@@ -1,86 +1,67 @@
 import argparse
-import subprocess
 import re
-import os
-import platform
+import subprocess
 
-def validate_target(target):
-    """Validate if the target is a valid IP or domain."""
-    ip_pattern = re.compile(r"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$")
-    domain_pattern = re.compile(r"^(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.[A-Za-z]{2,6}$")
-    if ip_pattern.match(target) or domain_pattern.match(target):
-        return True
-    raise ValueError(f"Invalid target: {target}. Must be a valid IP or domain.")
+def extract_valid_ips(line):
+    """
+    Extract only valid IPv4 and IPv6 addresses from a line of output.
+    """
+    # Expression régulière sans groupes capturants pour IPv4 et IPv6
+    ipv4_pattern = r"\b(?:\d{1,3}\.){3}\d{1,3}\b"
+    ipv6_pattern = r"\b(?:[a-fA-F0-9:]+:+)+[a-fA-F0-9]+\b"
 
-def run_traceroute(target, progressive, output_file):
-    """Run the traceroute command and handle output."""
-    # Determine the correct command based on the operating system
-    command = "tracert" if platform.system().lower() == "windows" else "traceroute"
+    return re.findall(f"{ipv4_pattern}|{ipv6_pattern}", line)
 
+def run_tracert(target, progressive=False, output_file=None):
+    """
+    Run the tracert command and extract valid IP addresses.
+    """
     try:
-        # Run traceroute using subprocess.Popen
+        print("[INFO] Exécution de 'tracert'...")
         process = subprocess.Popen(
-            [command, target],
+            ["tracert", target],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            text=True
+            universal_newlines=True,
+            encoding="cp850"  # Encodage Windows
         )
 
-        results = []
+        ips = []
+        while True:
+            line = process.stdout.readline()
+            if not line:
+                break
 
-        # Read output progressively
-        for line in process.stdout:
-            line = line.strip()
-            if progressive:
-                print(line)
-            results.append(line)
+            # Extraction des IP valides
+            valid_ips = extract_valid_ips(line)
+            for ip in valid_ips:
+                if ip not in ips:  # Évite les doublons
+                    ips.append(ip)
+                    if progressive:
+                        print(ip)
 
-        # Wait for the process to complete
-        process.wait()
+        # Affichage des IP finales
+        if not progressive:
+            for ip in ips:
+                print(ip)
 
-        # Handle errors
-        if process.returncode != 0:
-            error_output = process.stderr.read().strip()
-            raise RuntimeError(f"Traceroute failed: {error_output}")
-
-        # Write results to output file if specified
+        # Sauvegarde dans un fichier si nécessaire
         if output_file:
             with open(output_file, "w") as f:
-                f.write("\n".join(results))
-            print(f"Results saved to {output_file}")
+                for ip in ips:
+                    f.write(ip + "\n")
 
-    except FileNotFoundError:
-        print(f"Error: The '{command}' command is not available on your system.")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"[ERREUR] Une exception est survenue : {e}")
 
 def main():
-    # Set up de argparse pour l'interface en ligne de commande 
-    parser = argparse.ArgumentParser(description="Python Traceroute Script")
-    parser.add_argument("target", type=str, help="Target URL or IP address for the traceroute.")
-    parser.add_argument(
-        "-p", "--progressive",
-        action="store_true",
-        help="Display traceroute results progressively."
-    )
-    parser.add_argument(
-        "-o", "--output-file",
-        type=str,
-        help="File to save the traceroute results."
-    )
+    parser = argparse.ArgumentParser(description="Traceroute tool for Windows with Python")
+    parser.add_argument("target", help="Target URL or IP address")
+    parser.add_argument("-p", "--progressive", action="store_true", help="Display IP addresses progressively")
+    parser.add_argument("-o", "--output-file", metavar="FILE", help="Output file to save IP addresses")
 
-    # Parse arguments
     args = parser.parse_args()
-
-    # Validate target
-    try:
-        validate_target(args.target)
-    except ValueError as e:
-        print(e)
-        return
-
-    # Run traceroute
-    run_traceroute(args.target, args.progressive, args.output_file)
+    run_tracert(args.target, args.progressive, args.output_file)
 
 if __name__ == "__main__":
     main()
